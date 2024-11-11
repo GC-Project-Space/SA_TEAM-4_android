@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:behavior_peekHeight="50dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    android:background="@drawable/img_background">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/activity_ranking_container_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="10dp"
+        android:paddingHorizontal="30dp"
+        android:orientation="vertical"
+        android:layout_marginTop="120dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/border_round_top">
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/ranking_tab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="-10dp"
+            android:background="@color/transparent"
+            app:tabRippleColor="@color/transparent"
+            app:tabIndicatorColor="@color/transparent"
+            app:tabTextColor="@color/text_gray"
+            app:flow_horizontalAlign="start"
+            app:tabGravity="start"
+            app:tabPadding="0dp"
+            app:tabSelectedTextColor="@color/black"
+            app:tabTextAppearance="@style/tabTextAppearance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <View
+            android:id="@+id/ranking_underline"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/text_gray"
+            app:layout_constraintTop_toBottomOf="@id/ranking_tab"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/add_viewpager_vp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:overScrollMode="never"
+            android:background="@null"
+            app:layout_constraintTop_toBottomOf="@id/ranking_underline"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:repeatCount="-1"> <!-- -1로 설정하여 무한 반복 -->
+
+<!--    <translate xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--        android:duration="100"-->
+<!--        android:fromXDelta="0"-->
+<!--        android:toXDelta="20"-->
+<!--        android:repeatCount="3"-->
+<!--        android:repeatMode="reverse">-->
+<!--    </translate>-->
+
+    <rotate xmlns:android="http://schemas.android.com/apk/res/android"
+        android:interpolator="@android:anim/linear_interpolator"
+        android:repeatCount="infinite"
+        android:duration="1000"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:fromDegrees="0"
+        android:toDegrees="360">
+
+
+    </rotate>
+
+</set>

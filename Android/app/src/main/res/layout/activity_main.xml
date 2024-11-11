@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.chikorita.gamagochi.presentation.ui.MainViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".presentation.ui.MainActivity">
+
+        <RelativeLayout
+            android:id="@+id/activity_main_kakao_map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/activity_main_feed_btn"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="60dp"
+            android:background="@drawable/round_border_layout"
+            android:gravity="center"
+            android:text="무당이 밥 먹이기"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <include
+            android:id="@+id/activity_main_bottom"
+            layout="@layout/bottomsheet_personal_rank"
+            app:viewModel="@{viewModel}" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>
