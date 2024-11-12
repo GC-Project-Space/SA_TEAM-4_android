@@ -6,6 +6,7 @@ import com.chikorita.gamagochi.BuildConfig
 import com.chikorita.gamagochi.presentation.di.NetworkModule
 import com.chikorita.gamagochi.presentation.utils.DataStoreManager
 import com.kakao.sdk.common.KakaoSdk
+import com.kakao.vectormap.KakaoMapSdk
 import dagger.hilt.android.HiltAndroidApp
 import retrofit2.Retrofit
 import javax.inject.Inject
@@ -15,9 +16,6 @@ class ApplicationClass: Application() {
     @Inject
     @NetworkModule.BasicRetrofit
     lateinit var basicRetrofit: Retrofit
-
-    // 서버 주소
-    val API_URL = BuildConfig.BASE_URL
 
     init {
         instance = this
@@ -48,5 +46,6 @@ class ApplicationClass: Application() {
 
         // SDK 초기화
         KakaoSdk.init(this, BuildConfig.KAKAO_API_KEY)
+        KakaoMapSdk.init(this, BuildConfig.KAKAO_API_KEY)
     }
 }

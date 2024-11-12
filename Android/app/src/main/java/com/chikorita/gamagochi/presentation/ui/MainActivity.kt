@@ -3,44 +3,48 @@ package com.chikorita.gamagochi.presentation.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.chikorita.gamagochi.R
-import com.chikorita.gamagochi.presentation.config.base.BaseBindingActivity
-import android.content.Intent
-import android.os.Bundle
 import com.chikorita.gamagochi.data.dto.Mission
-import com.chikorita.gamagochi.presentation.config.ApplicationClass
 import com.chikorita.gamagochi.databinding.ActivityMainBinding
 import com.chikorita.gamagochi.databinding.BottomsheetPersonalRankBinding
+import com.chikorita.gamagochi.presentation.config.ApplicationClass
+import com.chikorita.gamagochi.presentation.config.base.BaseBindingActivity
 import com.chikorita.gamagochi.presentation.ui.ranking.RankingActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.kakao.vectormap.KakaoMap
+import com.kakao.vectormap.KakaoMapReadyCallback
+import com.kakao.vectormap.LatLng
+import com.kakao.vectormap.MapLifeCycleCallback
+import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.LabelOptions
+import com.kakao.vectormap.label.LabelStyle
+import com.kakao.vectormap.label.LabelStyles
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.daum.mf.map.api.MapPOIItem
 import net.daum.mf.map.api.MapPoint
-import net.daum.mf.map.api.MapView
 
 @AndroidEntryPoint
 class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_main) {
     private val viewModel: MainViewModel by viewModels()
 
-    lateinit var mapView: MapView
-    private lateinit var mapViewContainer : ViewGroup
+    private var kakaoMap: KakaoMap? = null
 
     private var uLatitude : Double = 0.0
     private var uLongitude : Double = 0.0
@@ -59,12 +63,10 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         // 위치 권한 허용
         getLocationPermission()
 
-        initMapView()
+        initMapSetting()
 
         // 지도가 현재 위치로 표시
         setCurrentLocation()
-        // 현재 위치 마커 표시
-        addCustomMarker()
         // 하단 바텀 시트 표시
         setBottomSheet()
 
@@ -88,6 +90,22 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
             }
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+        binding.activityMainKakaoMap.resume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        binding.activityMainKakaoMap.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopLocationUpdates()
+    }
+
     private fun sendLocationToServer() {
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         try {
@@ -96,7 +114,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
             val longitude = userNowLocation.longitude
 
             Log.d("Location_error","4")
-
 
             // 실제 서버 통신은 여기에 구현
             GlobalScope.launch {
@@ -112,12 +129,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
             Toast.makeText(this, "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Log.e("LOCATION_ERROR", e.toString())
-        }
-    }
-
-    private fun missionCheck(){
-        with(binding.activityMainBottom){
-
         }
     }
 
@@ -213,16 +224,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
     }
 
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun finish() {
-        binding.activityMainKakaoMapView.removeView(mapView)
-        super.finish()
-    }
-
     private fun getLocationPermission() {
         val permissionCheck = ContextCompat.checkSelfPermission(this,
             Manifest.permission.ACCESS_FINE_LOCATION
@@ -246,36 +247,44 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         }
     }
 
-    private fun initMapView() {
-        mapView = MapView(this)
-        mapViewContainer = binding.activityMainKakaoMapView
-        mapViewContainer.addView(mapView)
-
-        // 줌 레벨 변경
-        mapView.setZoomLevel(1, true)
+    private fun initMapSetting() {
+        binding.activityMainKakaoMap.start(object : MapLifeCycleCallback() {
+            override fun onMapDestroy() {
+                // 지도 API 가 정상적으로 종료될 때 호출
+                Log.d("KakaoMap", "onMapDestroy: ")
+            }
+            override fun onMapError(error: Exception) {
+                // 인증 실패 및 지도 사용 중 에러가 발생할 때 호출
+                Log.d("KakaoMap", "onMapError: $error")
+            }
+        }, object : KakaoMapReadyCallback() {
+            override fun onMapReady(kakaoMap: KakaoMap) {
+                // 인증 후 API 가 정상적으로 실행될 때 호출됨
+                Log.d("KakaoMap", "onMapReady: $kakaoMap")
+                this@MainActivity.kakaoMap = kakaoMap
+                setCurrentLocation()
+            }
+        })
     }
 
     private fun setCurrentLocation() {
-        val uNowPosition = MapPoint.mapPointWithGeoCoord(uLatitude, uLongitude)
-        mapView.setMapCenterPoint(uNowPosition, true)
+        val currentLatLng = LatLng.from(uLatitude, uLongitude)
+        val cameraUpdate = CameraUpdateFactory.newCenterPosition(currentLatLng, DEFAULT_ZOOM_LEVEL)
+        kakaoMap?.moveCamera(cameraUpdate)
 
-        Log.d("Map", "${uLatitude}, ${uLongitude}")
+        addCurrentLocationMarker(currentLatLng) // 현재 위치 마커 표시
+        Log.d("MainActivity", currentLatLng.toString())
     }
 
-    private fun addCustomMarker() {
-        // 현재 위치에 마커 추가
-        val marker = MapPOIItem()
-        marker.apply {
-            itemName = "현재 위치"   // 마커 이름
-            mapPoint = MapPoint.mapPointWithGeoCoord(uLatitude, uLongitude) // 좌표
-            markerType = MapPOIItem.MarkerType.CustomImage // 마커 모양 (커스텀)
-            customImageResourceId = R.drawable.ic_custom_marker // 커스텀 마커 이미지
-            selectedMarkerType = MapPOIItem.MarkerType.CustomImage  // 클릭 시 마커 모양 (커스텀)
-            selectedMarkerType = MapPOIItem.MarkerType.RedPin // 클릭 시 마커 이미지
-            isCustomImageAutoscale = false // 커스텀 마커 이미지 크기 자동 조정
-            setCustomImageAnchor(0.5f, 1.0f)    // 마커 이미지 기준점
-        }
-        mapView.addPOIItem(marker)
+    private fun addCurrentLocationMarker(currentLatLng: LatLng) {
+        // 마커 스타일 지정
+        val styles = kakaoMap?.labelManager?.addLabelStyles(
+            LabelStyles.from(
+                LabelStyle.from(R.drawable.ic_custom_marker)))
+        // 지도에 마커 추가
+        kakaoMap?.labelManager?.layer?.addLabel(
+            LabelOptions.from(currentLatLng).setStyles(styles)
+        )?.show()
     }
 
     private fun setMissionMark(dataList: ArrayList<Mission>) {
@@ -287,7 +296,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 //                markerType = MapPOIItem.MarkerType.BluePin
                 selectedMarkerType = MapPOIItem.MarkerType.RedPin
             }
-            mapView.addPOIItem(marker)
+//            mapView.addPOIItem(marker)
         }
     }
 
@@ -321,8 +330,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         }).start()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        stopLocationUpdates()
+    companion object {
+        const val DEFAULT_ZOOM_LEVEL = 17 // 기본 줌 레벨
     }
 }

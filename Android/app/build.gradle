@@ -73,10 +73,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    // 카카오 로그인 모듈
+    // 카카오 로그인 및 카카오맵
     implementation "com.kakao.sdk:v2-user:2.8.5" // 카카오 로그인
-    // 카카오 맵 모듈
-    implementation fileTree(dir: 'src\\main\\jniLibs', include: ['*.aar', '*.jar'], exclude: [])
+    implementation 'com.kakao.maps.open:android:2.11.9' // 카카오맵
 
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
