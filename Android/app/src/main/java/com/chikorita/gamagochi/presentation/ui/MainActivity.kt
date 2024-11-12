@@ -37,8 +37,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.daum.mf.map.api.MapPOIItem
-import net.daum.mf.map.api.MapPoint
 
 @AndroidEntryPoint
 class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_main) {
@@ -287,16 +285,9 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         )?.show()
     }
 
-    private fun setMissionMark(dataList: ArrayList<Mission>) {
-        for (data in dataList) {
-            val marker = MapPOIItem()
-            marker.apply {
-                itemName = data.missionName
-                mapPoint = MapPoint.mapPointWithGeoCoord(data.latitude, data.longitude)
-//                markerType = MapPOIItem.MarkerType.BluePin
-                selectedMarkerType = MapPOIItem.MarkerType.RedPin
-            }
-//            mapView.addPOIItem(marker)
+    private fun setMissionMark(missionList: ArrayList<Mission>) {
+        for (data in missionList) {
+            //TODO: 지도에 미션 마커 추가
         }
     }
 
