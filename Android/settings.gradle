@@ -3,7 +3,6 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
-        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
 dependencyResolutionManagement {
@@ -11,10 +10,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        jcenter() // Warning: this repository is going to shut down soon
-
-        //KakaoSDK repository
-        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/'}
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
     }
 }
 rootProject.name = "Gamagochi"
