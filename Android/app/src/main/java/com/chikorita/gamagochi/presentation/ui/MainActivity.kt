@@ -5,11 +5,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -17,10 +16,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.chikorita.gamagochi.R
-import com.chikorita.gamagochi.data.dto.Mission
 import com.chikorita.gamagochi.databinding.ActivityMainBinding
 import com.chikorita.gamagochi.databinding.BottomsheetPersonalRankBinding
-import com.chikorita.gamagochi.presentation.config.ApplicationClass
+import com.chikorita.gamagochi.domain.model.Mission
 import com.chikorita.gamagochi.presentation.config.base.BaseBindingActivity
 import com.chikorita.gamagochi.presentation.ui.ranking.RankingActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -32,10 +30,10 @@ import com.kakao.vectormap.camera.CameraUpdateFactory
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
+import com.kakao.vectormap.label.LabelTextBuilder
+import com.kakao.vectormap.label.LabelTextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
@@ -49,10 +47,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
     private lateinit var personalRankingBottomSheet: BottomsheetPersonalRankBinding // 화면 아래에 표시되는 바텀시트
     private lateinit var behavior : BottomSheetBehavior<ConstraintLayout>
-
-    private lateinit var handler: Handler
-
-    private var isLocationUpdateEnabled = false // 버튼 클릭 상태 변수
 
     override fun initView() {
         binding.viewModel = viewModel
@@ -73,20 +67,13 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
         setRankerBackground()
         initClickListener()
+        initObserve()
+    }
 
-        viewModel.mission.observe(this) {
-            val message = "미션 완료! 경험치가 올라요"
-            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    override fun onStart() {
+        super.onStart()
 
-            ApplicationClass.missions = ApplicationClass.missions.map { missionId ->
-                if (it.any { it == missionId }) {
-                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-                    0
-                } else {
-                    missionId
-                }
-            }
-        }
+        viewModel.getMissions() // 미션 목록 조회
     }
 
     override fun onResume() {
@@ -97,37 +84,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     override fun onPause() {
         super.onPause()
         binding.activityMainKakaoMap.pause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        stopLocationUpdates()
-    }
-
-    private fun sendLocationToServer() {
-        val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        try {
-            val userNowLocation: Location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)!!
-            val latitude = userNowLocation.latitude
-            val longitude = userNowLocation.longitude
-
-            Log.d("Location_error","4")
-
-            // 실제 서버 통신은 여기에 구현
-            GlobalScope.launch {
-                    Log.d("Location_error","5")
-                    viewModel.postLocation(latitude, longitude, ApplicationClass.missions)
-                    Log.d("Location_error","6")
-            }
-            Log.d("Location_error","7")
-
-            Log.d("LOCATION_UPDATE", "Latitude: $latitude, Longitude: $longitude")
-        } catch (e: SecurityException) {
-            Log.e("LOCATION_ERROR", e.toString())
-            Toast.makeText(this, "위치 권한이 필요합니다.", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e("LOCATION_ERROR", e.toString())
-        }
     }
 
     private fun initClickListener(){
@@ -146,40 +102,17 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
             intent.putExtra("bundle",bundle)
             startActivity(intent)
         }
+    }
 
-        binding.activityMainFeedBtn.setOnClickListener {
-            if (isLocationUpdateEnabled) {
-                // 버튼을 눌렀을 때 위치 정보 업데이트가 활성화되어 있으면 비활성화
-                stopLocationUpdates()
-                binding.activityMainFeedBtn.text = "무당이 밥 먹이기"
-            } else {
-                // 버튼을 눌렀을 때 위치 정보 업데이트가 비활성화되어 있으면 활성화
-                startLocationUpdates()
-                binding.activityMainFeedBtn.text = "무당이는 밥 먹는 중"
+    private fun initObserve() {
+        viewModel.missions.observe(this) { missions ->
+            Log.d("MainActivity", "missionList: $missions")
+            if (missions.isNotEmpty()) {
+                kakaoMap?.labelManager?.layer?.removeAll()
+                missions.forEach {
+                    addMissionMarker(it) // 지도에 마커 추가
+                }
             }
-            isLocationUpdateEnabled = !isLocationUpdateEnabled
-        }
-
-    }
-
-    private fun startLocationUpdates() {
-        Log.d("Location_error","1")
-        handler = Handler(Looper.getMainLooper())
-        handler.post(locationUpdateRunnable)
-    }
-
-    private fun stopLocationUpdates() {
-        handler.removeCallbacks(locationUpdateRunnable)
-    }
-
-    private val locationUpdateRunnable = object : Runnable {
-        override fun run() {
-            Log.d("Location_error","2")
-
-            sendLocationToServer()
-            Log.d("Location_error","3")
-
-            handler.postDelayed(this, 60000) // 1분마다 실행
         }
     }
 
@@ -261,12 +194,15 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
                 Log.d("KakaoMap", "onMapReady: $kakaoMap")
                 this@MainActivity.kakaoMap = kakaoMap
                 setCurrentLocation()
+                viewModel.missions.value?.forEach {
+                    addMissionMarker(it)
+                }
             }
         })
     }
 
     private fun setCurrentLocation() {
-        val currentLatLng = LatLng.from(uLatitude, uLongitude)
+        val currentLatLng = LatLng.from(37.45515, 127.1336) // LatLng.from(uLatitude, uLongitude)
         val cameraUpdate = CameraUpdateFactory.newCenterPosition(currentLatLng, DEFAULT_ZOOM_LEVEL)
         kakaoMap?.moveCamera(cameraUpdate)
 
@@ -285,10 +221,14 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         )?.show()
     }
 
-    private fun setMissionMark(missionList: ArrayList<Mission>) {
-        for (data in missionList) {
-            //TODO: 지도에 미션 마커 추가
-        }
+    private fun addMissionMarker(mission: Mission) {
+        // 지도에 미션 마커 추가
+        kakaoMap?.labelManager?.layer?.addLabel(LabelOptions.from(mission.latLng)
+            .setStyles(setPinStyle(mission.isFinished))
+            .setTexts(
+                LabelTextBuilder().setTexts(mission.missionName)
+            )
+        )
     }
 
     private fun setBottomSheet() {
@@ -312,16 +252,16 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         }
     }
 
-    private fun sendInfoToServer() {
-        // 서버 통신을 별도의 쓰레드에서 처리
-        Thread(Runnable {
-            getLocationPermission()
-            //viewModel.postLocation(uLatitude, uLongitude, ApplicationClass.missions)
-
-        }).start()
-    }
-
     companion object {
         const val DEFAULT_ZOOM_LEVEL = 17 // 기본 줌 레벨
+
+        fun setPinStyle(isFinishedMission: Boolean): LabelStyles {
+            return LabelStyles.from(
+                LabelStyle.from(if (isFinishedMission) R.drawable.ic_pin_finished else R.drawable.ic_pin_default)
+                    .setTextStyles(
+                        LabelTextStyle.from(24, Color.BLACK)
+                    )
+            )
+        }
     }
 }

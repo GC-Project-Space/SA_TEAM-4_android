@@ -10,7 +10,9 @@ import com.chikorita.gamagochi.data.dto.LadybugLocationRequest
 import com.chikorita.gamagochi.data.dto.RankingList
 import com.chikorita.gamagochi.domain.model.MajorInfo
 import com.chikorita.gamagochi.domain.model.MajorRanker
+import com.chikorita.gamagochi.domain.model.Mission
 import com.chikorita.gamagochi.domain.model.SchoolRanker
+import com.chikorita.gamagochi.domain.repository.MissionRepository
 import com.chikorita.gamagochi.domain.repository.RankRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+    private val missionRepository: MissionRepository,
     private val levelRepository: RankRepository,
 ) : ViewModel(){
 
@@ -45,9 +48,9 @@ class MainViewModel @Inject constructor(
     val majorList : LiveData<ArrayList<MajorInfo>>
         get() = _majorList
 
-    private val _mission = MutableLiveData<List<Long>>()
-    val mission : LiveData<List<Long>>
-        get() = _mission
+    private val _missions = MutableLiveData<List<Mission>>()
+    val missions : LiveData<List<Mission>>
+        get() = _missions
 
     /** 내 정보 조회 */
     fun getLadybugDetail() {
@@ -74,14 +77,19 @@ class MainViewModel @Inject constructor(
         }
     }
 
-
-    fun postLocation(latitude : Double, longitude : Double, mission : List<Long>) {
-        val ladybugLocationRequest = LadybugLocationRequest(latitude, longitude, mission)
-        Log.d("Location_error", ladybugLocationRequest.toString())
-
-        viewModelScope.launch(Dispatchers.IO) {
-            _mission.value = levelRepository.postLocation(ladybugLocationRequest).result.successMission
+    fun getMissions() {
+        viewModelScope.launch {
+            _missions.value = missionRepository.getMissionList()
         }
     }
+
+//    fun postLocation(latitude : Double, longitude : Double, mission : List<Long>) {
+//        val ladybugLocationRequest = LadybugLocationRequest(latitude, longitude, mission)
+//        Log.d("Location_error", ladybugLocationRequest.toString())
+//
+//        viewModelScope.launch(Dispatchers.IO) {
+//            _mission.value = levelRepository.postLocation(ladybugLocationRequest).result.successMission
+//        }
+//    }
 
 }
