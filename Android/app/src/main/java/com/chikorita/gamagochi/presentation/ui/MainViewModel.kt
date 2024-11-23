@@ -73,6 +73,24 @@ class MainViewModel @Inject constructor(
     val nearbyMission: LiveData<Mission>
         get() = _nearbyMission
 
+    private val _isSuccess = MutableLiveData<Boolean>()
+    val isSuccess: LiveData<Boolean>
+        get() = _isSuccess
+
+    /** 미션 목록 조회 (지도 화면) */
+    fun getMissions() {
+        viewModelScope.launch {
+            _missions.value = missionRepository.getMissionList()
+        }
+    }
+
+    /** 미션 성공 처리 */
+    fun clearMission() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isSuccess.postValue(missionRepository.clearMission(_nearbyMission.value!!.missionId))
+        }
+    }
+
     /** 내 정보 조회 */
     fun getLadybugDetail() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -95,13 +113,6 @@ class MainViewModel @Inject constructor(
                 if (it.isNotEmpty()) _majorList.value = it as ArrayList
             }
             Log.d("MainViewModel", "majorList: ${_majorList.value}")
-        }
-    }
-
-    // 미션 목록 조회 (지도 화면)
-    fun getMissions() {
-        viewModelScope.launch {
-            _missions.value = missionRepository.getMissionList()
         }
     }
 

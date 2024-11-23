@@ -26,3 +26,7 @@ data class MissionResult(
         )
     }
 }
+
+data class MissionClearRequestBody(
+    var missionId: Long
+)

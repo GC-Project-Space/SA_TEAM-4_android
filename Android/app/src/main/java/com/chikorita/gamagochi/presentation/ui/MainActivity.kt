@@ -21,6 +21,7 @@ import com.chikorita.gamagochi.R
 import com.chikorita.gamagochi.databinding.ActivityMainBinding
 import com.chikorita.gamagochi.databinding.BottomsheetPersonalRankBinding
 import com.chikorita.gamagochi.domain.model.Mission
+import com.chikorita.gamagochi.domain.model.MissionStatus
 import com.chikorita.gamagochi.presentation.config.base.BaseBindingActivity
 import com.chikorita.gamagochi.presentation.ui.ranking.RankingActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -66,9 +67,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         // 하단 바텀 시트 표시
         setBottomSheet()
 
-        // 위치 더미 데이터
-//        addDummyMapData()
-
         setRankerBackground()
         initClickListener()
         initObserve()
@@ -90,7 +88,12 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         binding.activityMainKakaoMap.pause()
     }
 
-    private fun initClickListener(){
+    private fun initClickListener() {
+        // 미션 달성 버튼
+        binding.activityMainFeedBtn.setOnClickListener {
+            viewModel.clearMission()
+        }
+
         personalRankingBottomSheet = binding.activityMainBottom
 
         val intent = Intent(this, RankingActivity::class.java)
@@ -116,6 +119,14 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
                 missions.forEach {
                     addMissionMarker(it) // 지도에 마커 추가
                 }
+            }
+        }
+
+        viewModel.isSuccess.observe(this) { isSuccess ->
+            if (isSuccess) {
+                Toast.makeText(this, "미션 달성 성공!", Toast.LENGTH_SHORT).show()
+                viewModel.updateMissionStatus(MissionStatus.DONE) // 버튼 상태 변경
+                viewModel.getMissions() // 미션 목록 업데이트
             }
         }
     }
@@ -239,8 +250,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     private fun setCurrentLocation() {
         if (viewModel.movePath.isNotEmpty()) {
             moveAlongPath(viewModel.movePath) // movePath를 따라 이동 시작
-        } else {
-            Log.d("MainActivity", "movePath is empty.")
         }
     }
 
