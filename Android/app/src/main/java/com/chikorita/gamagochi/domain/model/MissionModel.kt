@@ -8,3 +8,7 @@ data class Mission(
     var latLng: LatLng, // 좌표
     var isFinished: Boolean
 )
+
+enum class MissionStatus() {
+    UNABLE, ABLE, DONE
+}

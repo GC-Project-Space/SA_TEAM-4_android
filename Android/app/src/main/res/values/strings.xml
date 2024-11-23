@@ -8,4 +8,9 @@
     <string name="major">학과</string>
     <string name="input_nickname_tint">닉네임을 입력하세요</string>
     <string name="input_id_tint">닉네임을 입력하세요</string>
+
+    <!-- 미션 -->
+    <string name="mission_msg_unable">미션 지역이 아닙니다</string>
+    <string name="mission_msg_able">‘%s’ 미션 완료하기</string>
+    <string name="mission_msg_done">이미 완료한 미션입니다</string>
 </resources>

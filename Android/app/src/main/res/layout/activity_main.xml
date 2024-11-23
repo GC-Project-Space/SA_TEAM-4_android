@@ -2,6 +2,7 @@
 <layout>
 
     <data>
+        <import type="com.chikorita.gamagochi.domain.model.MissionStatus"/>
         <variable
             name="viewModel"
             type="com.chikorita.gamagochi.presentation.ui.MainViewModel" />
@@ -24,18 +25,24 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <TextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/activity_main_feed_btn"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginHorizontal="20dp"
             android:layout_marginBottom="60dp"
-            android:background="@drawable/round_border_layout"
-            android:gravity="center"
-            android:text="무당이 밥 먹이기"
+            android:paddingHorizontal="22dp"
+            android:paddingVertical="15dp"
+            android:backgroundTint="@{viewModel.missionStatus == MissionStatus.ABLE ? @color/primary_default : @color/primary_light}"
+            android:background="@drawable/round_btn_layout"
+            android:drawableEnd="@{viewModel.missionStatus == MissionStatus.ABLE ? @drawable/ic_check : @drawable/ic_delete}"
+            android:text="@{viewModel.missionStatus == MissionStatus.ABLE ? @string/mission_msg_able(viewModel.nearbyMission.missionName) : (viewModel.missionStatus == MissionStatus.UNABLE ? @string/mission_msg_unable : @string/mission_msg_done)}"
             android:textSize="16sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            tools:drawableEnd="@drawable/ic_check"
+            tools:text="@string/mission_msg_unable"/>
 
         <include
             android:id="@+id/activity_main_bottom"

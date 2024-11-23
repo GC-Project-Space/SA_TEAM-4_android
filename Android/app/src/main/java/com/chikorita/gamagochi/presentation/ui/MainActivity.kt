@@ -9,6 +9,8 @@ import android.graphics.Color
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -27,6 +29,7 @@ import com.kakao.vectormap.KakaoMapReadyCallback
 import com.kakao.vectormap.LatLng
 import com.kakao.vectormap.MapLifeCycleCallback
 import com.kakao.vectormap.camera.CameraUpdateFactory
+import com.kakao.vectormap.label.Label
 import com.kakao.vectormap.label.LabelOptions
 import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelStyles
@@ -48,6 +51,9 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
     private lateinit var personalRankingBottomSheet: BottomsheetPersonalRankBinding // 화면 아래에 표시되는 바텀시트
     private lateinit var behavior : BottomSheetBehavior<ConstraintLayout>
 
+    // 기존 마커를 저장하는 변수
+    private var currentLocationMarker: Label? = null
+
     override fun initView() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
@@ -57,8 +63,6 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
         initMapSetting()
 
-        // 지도가 현재 위치로 표시
-        setCurrentLocation()
         // 하단 바텀 시트 표시
         setBottomSheet()
 
@@ -193,7 +197,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
                 // 인증 후 API 가 정상적으로 실행될 때 호출됨
                 Log.d("KakaoMap", "onMapReady: $kakaoMap")
                 this@MainActivity.kakaoMap = kakaoMap
-                setCurrentLocation()
+                setCurrentLocation() // 지도가 현재 위치로 표시
                 viewModel.missions.value?.forEach {
                     addMissionMarker(it)
                 }
@@ -201,24 +205,65 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         })
     }
 
-    private fun setCurrentLocation() {
-        val currentLatLng = LatLng.from(37.45515, 127.1336) // LatLng.from(uLatitude, uLongitude)
-        val cameraUpdate = CameraUpdateFactory.newCenterPosition(currentLatLng, DEFAULT_ZOOM_LEVEL)
-        kakaoMap?.moveCamera(cameraUpdate)
+    private fun moveAlongPath(movePath: List<LatLng>) {
+        val handler = Handler(Looper.getMainLooper())
+        viewModel.currentPathIndex = 0
 
-        addCurrentLocationMarker(currentLatLng) // 현재 위치 마커 표시
-        Log.d("MainActivity", currentLatLng.toString())
+        val moveRunnable = object : Runnable {
+            override fun run() {
+                if (viewModel.currentPathIndex < movePath.size) {
+                    val targetLatLng = movePath[viewModel.currentPathIndex]
+
+                    // 기존 마커 위치 업데이트
+                    addOrUpdateCurrentLocationMarker(targetLatLng)
+
+                    Log.d("MainActivity", "Moved to: $targetLatLng")
+
+                    // 다음 경로로 이동
+                    viewModel.currentPathIndex++
+                    handler.postDelayed(this, DELAY_MILLS)
+                    if (viewModel.currentPathIndex == movePath.size) {
+                        viewModel.setNearbyMission(movePath.last()) // 마지막 미션일 경우 미션 달성 버튼 활성화
+                    }
+                } else {
+                    handler.removeCallbacks(this)
+                    Log.d("MainActivity", "Path movement completed.")
+                }
+            }
+        }
+        handler.post(moveRunnable)
     }
 
-    private fun addCurrentLocationMarker(currentLatLng: LatLng) {
-        // 마커 스타일 지정
-        val styles = kakaoMap?.labelManager?.addLabelStyles(
-            LabelStyles.from(
-                LabelStyle.from(R.drawable.ic_custom_marker)))
-        // 지도에 마커 추가
-        kakaoMap?.labelManager?.layer?.addLabel(
-            LabelOptions.from(currentLatLng).setStyles(styles)
-        )?.show()
+
+    // movePath로 이동하도록 수정
+    private fun setCurrentLocation() {
+        if (viewModel.movePath.isNotEmpty()) {
+            moveAlongPath(viewModel.movePath) // movePath를 따라 이동 시작
+        } else {
+            Log.d("MainActivity", "movePath is empty.")
+        }
+    }
+
+    // 마커 생성 또는 위치 업데이트
+    private fun addOrUpdateCurrentLocationMarker(currentLatLng: LatLng) {
+        if (currentLocationMarker == null) {
+            // 마커가 없으면 새로 생성
+            val styles = kakaoMap?.labelManager?.addLabelStyles(
+                LabelStyles.from(
+                    LabelStyle.from(R.drawable.ic_custom_marker)
+                )
+            )
+            // 지도에 마커 추가
+            currentLocationMarker = kakaoMap?.labelManager?.layer?.addLabel(
+                LabelOptions.from(currentLatLng).setStyles(styles)
+            )?.apply { show() }
+            // 지도 중심 이동
+            val cameraUpdate = CameraUpdateFactory.newCenterPosition(currentLatLng, DEFAULT_ZOOM_LEVEL)
+            kakaoMap?.moveCamera(cameraUpdate)
+        } else {
+            // 기존 마커의 위치를 업데이트
+            currentLocationMarker?.moveTo(currentLatLng)
+        }
     }
 
     private fun addMissionMarker(mission: Mission) {
@@ -254,6 +299,7 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
 
     companion object {
         const val DEFAULT_ZOOM_LEVEL = 17 // 기본 줌 레벨
+        const val DELAY_MILLS = 2500L // 5초마다 이동
 
         fun setPinStyle(isFinishedMission: Boolean): LabelStyles {
             return LabelStyles.from(
