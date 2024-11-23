@@ -1,20 +1,32 @@
 package com.chikorita.gamagochi.data.dto
 
-import com.chikorita.gamagochi.presentation.config.base.BaseResponse
+import com.chikorita.gamagochi.domain.model.Mission
+import com.kakao.vectormap.LatLng
 
 data class MissionResponse(
-    val result: MissionMapResult
-) : BaseResponse()
-
-// 미션 목록
-data class MissionMapResult(
-    val missionList: ArrayList<Mission>
+    val status: String,
+    val missions: List<MissionResult>
 )
 
 // 지도에 표시되는 미션
-data class Mission(
+data class MissionResult(
     var missionId: Long,
     var missionName: String? = null, // 미션 이름
-    var latitude: Double, // 위도
-    var longitude: Double // 경도
+    var coordinate: String, // 좌표 (위도, 경도)
+    var cleared: Boolean
+) {
+    fun convertToModel(): Mission {
+        val parts = coordinate.split(",")
+        val latLng = LatLng.from(parts[0].toDouble(),  parts[1].toDouble())
+        return Mission(
+            missionId = this.missionId,
+            missionName = this.missionName,
+            latLng = latLng,
+            isFinished = this.cleared
+        )
+    }
+}
+
+data class MissionClearRequestBody(
+    var missionId: Long
 )

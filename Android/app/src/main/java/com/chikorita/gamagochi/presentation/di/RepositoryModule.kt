@@ -1,8 +1,10 @@
 package com.chikorita.gamagochi.presentation.di
 
 import com.chikorita.gamagochi.data.api.AuthApiService
+import com.chikorita.gamagochi.data.api.MissionApiService
 import com.chikorita.gamagochi.data.api.RankApiService
 import com.chikorita.gamagochi.domain.repository.AuthRepository
+import com.chikorita.gamagochi.domain.repository.MissionRepository
 import com.chikorita.gamagochi.domain.repository.RankRepository
 import dagger.Module
 import dagger.Provides
@@ -23,4 +25,10 @@ object RepositoryModule {
     fun provideRankRepository(
         rankApiService: RankApiService,
     ): RankRepository = RankRepository(rankApiService)
+
+    /** 미션 */
+    @Provides
+    fun provideMissionRepository(
+        missionApiService: MissionApiService
+    ): MissionRepository = MissionRepository(missionApiService)
 }
