@@ -19,22 +19,21 @@
         android:layout_marginStart="33dp"
         android:layout_marginTop="60dp"
         />
+
     <EditText
         android:id="@+id/input_et"
         android:layout_width="match_parent"
         android:layout_height="53dp"
-        android:layout_marginTop="6dp"
-        android:paddingHorizontal="16dp"
-        android:hint="@string/input_nickname_tint"
         android:layout_marginHorizontal="20dp"
-        android:textSize="16sp"
-        android:maxLines="1"
-        android:inputType="text"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/count_tv"
-        app:layout_constraintTop_toBottomOf="@id/input_tv"
+        android:layout_marginTop="6dp"
         android:background="@drawable/round_border_layout"
-        />
+        android:hint="@string/input_nickname_tint"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingHorizontal="16dp"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/input_tv" />
 
     <ImageView
         android:id="@+id/delete_iv"
@@ -45,19 +44,6 @@
         app:layout_constraintBottom_toBottomOf="@id/input_et"
         app:layout_constraintTop_toTopOf="@id/input_et"
         android:layout_marginEnd="16dp"
-        />
-
-    <TextView
-        android:id="@+id/count_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@id/delete_iv"
-        app:layout_constraintBottom_toBottomOf="@id/input_et"
-        app:layout_constraintTop_toTopOf="@id/input_et"
-        android:textSize="14sp"
-        android:text="0/8"
-        android:textColor="@color/primary_default"
-        android:layout_marginEnd="8dp"
         />
 
 

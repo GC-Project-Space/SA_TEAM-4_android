@@ -19,7 +19,8 @@
         android:layout_marginStart="33dp"
         android:layout_marginTop="60dp"
         />
-    <Spinner
+
+    <EditText
         android:id="@+id/input_et"
         android:layout_width="match_parent"
         android:layout_height="53dp"
@@ -30,6 +31,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_tv"
         android:background="@drawable/round_border_layout"
+        android:inputType="text"
+        android:hint="학과를 입력하세요"
+        android:maxLines="1"
         />
 
     <androidx.appcompat.widget.AppCompatButton
@@ -38,6 +42,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         style="@style/default_register_btn" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

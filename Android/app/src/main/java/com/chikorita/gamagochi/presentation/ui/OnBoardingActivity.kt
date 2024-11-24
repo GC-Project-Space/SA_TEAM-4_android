@@ -1,22 +1,19 @@
 package com.chikorita.gamagochi.presentation.ui
 
 import android.content.Intent
-import com.chikorita.gamagochi.presentation.config.base.BaseActivity
-import com.chikorita.gamagochi.databinding.ActivityOnBoardingBinding
+import android.os.Bundle
+import android.widget.Button
+import androidx.appcompat.app.AppCompatActivity
+import com.chikorita.gamagochi.R
 
-class OnBoardingActivity : BaseActivity<ActivityOnBoardingBinding>(
-    ActivityOnBoardingBinding::inflate){
-    override fun initView() {
-        initListener()
-    }
-    private fun initListener(){
+class OnBoardingActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_on_boarding)
 
-        binding.nextBtn.setOnClickListener{
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        findViewById<Button>(R.id.next_btn).setOnClickListener {
+            startActivity(Intent(this, MainActivity::class.java))
             finish()
-
         }
-
     }
 }

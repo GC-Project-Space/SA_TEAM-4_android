@@ -23,56 +23,56 @@
 
     </data>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="45dp"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:background="@drawable/border_rectangle">
-    
-    <TextView
-        android:id="@+id/rank_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@{String.valueOf(rank) + '위'}"
-        android:textColor="@color/black"
-        android:textSize="12sp"
-        android:layout_marginStart="8sp"
-        android:gravity="end"
-        android:textStyle="bold"
-        android:minWidth="24dp"
-        tools:text="00위"/>
-    <TextView
-        android:id="@+id/id_tv"
-        android:layout_width="65dp"
-        android:layout_height="wrap_content"
-        android:text="@{nickName}"
-        android:textColor="@color/black"
-        android:textSize="13sp"
-        android:layout_marginStart="12sp"
-        android:gravity="end"
-        tools:text="닉네임"/>
-    <TextView
-        android:id="@+id/symbol_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@{symbol}"
-        android:textColor="@color/black"
-        android:textSize="12sp"
-        android:gravity="end"
-        android:layout_weight="1"
-        tools:text="무당이 단계"/>
-    <TextView
-        android:id="@+id/exp_tv"
-        android:layout_width="53dp"
-        android:layout_height="wrap_content"
-        android:text="@{String.valueOf(exp) + `Ex`}"
-        android:textColor="@color/black"
-        android:textSize="12sp"
-        android:layout_marginHorizontal="7dp"
-        android:gravity="end"
-        tools:text="000Ex"/>
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/border_rectangle">
 
-</LinearLayout>
+        <TextView
+            android:id="@+id/rank_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(rank) + '번'}"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:layout_marginStart="8sp"
+            android:gravity="end"
+            android:textStyle="bold"
+            android:minWidth="24dp"
+            tools:text="00위"/>
+        <TextView
+            android:id="@+id/id_tv"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:text="@{nickName}"
+            android:textColor="@color/black"
+            android:textSize="13sp"
+            android:layout_marginStart="12sp"
+            android:gravity="end"
+            tools:text="닉네임"/>
+        <TextView
+            android:id="@+id/symbol_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{symbol}"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:gravity="end"
+            android:layout_weight="1"
+            tools:text="무당이 단계"/>
+        <TextView
+            android:id="@+id/exp_tv"
+            android:layout_width="53dp"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(exp) + `Ex`}"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            android:layout_marginHorizontal="7dp"
+            android:gravity="end"
+            tools:text="000Ex"/>
+
+    </LinearLayout>
 
 </layout>
