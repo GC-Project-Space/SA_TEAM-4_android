@@ -22,6 +22,8 @@ import com.chikorita.gamagochi.databinding.ActivityMainBinding
 import com.chikorita.gamagochi.databinding.BottomsheetPersonalRankBinding
 import com.chikorita.gamagochi.domain.model.Mission
 import com.chikorita.gamagochi.domain.model.MissionStatus
+import com.chikorita.gamagochi.presentation.config.ApplicationClass
+import com.chikorita.gamagochi.presentation.config.ApplicationClass.Companion.dsManager
 import com.chikorita.gamagochi.presentation.config.base.BaseBindingActivity
 import com.chikorita.gamagochi.presentation.ui.ranking.RankingActivity
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -38,6 +40,7 @@ import com.kakao.vectormap.label.LabelTextBuilder
 import com.kakao.vectormap.label.LabelTextStyle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 @AndroidEntryPoint
@@ -70,12 +73,15 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
         setRankerBackground()
         initClickListener()
         initObserve()
+
     }
 
     override fun onStart() {
         super.onStart()
 
         viewModel.getMissions() // 미션 목록 조회
+        viewModel.getAllMajor()
+        viewModel.getLevelRanking()
     }
 
     override fun onResume() {
@@ -129,6 +135,19 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
                 viewModel.getMissions() // 미션 목록 업데이트
             }
         }
+
+
+        viewModel.rankingList.observe(this) { rankingList ->
+            if (rankingList != null) {
+                Log.d("MainActivity", "rankingList: $rankingList")
+                if (rankingList.isNotEmpty()) {
+                    Log.d("MainActivity", "rankingList is not empty: $rankingList")
+                }
+            } else {
+                Log.d("MainActivity", "rankingList is null")
+            }
+        }
+
     }
 
     @SuppressLint("ResourceAsColor")
@@ -146,8 +165,8 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding>(R.layout.activity_
                 bottomDialog.rankUser1.root.setBackgroundResource(R.drawable.border_rectangle)
                 bottomDialog.rankUser2.root.setBackgroundResource(R.drawable.gradation_rectangle_2)
             } else {
-                bottomDialog.rankUser0.root.setBackgroundResource(R.drawable.border_rectangle)
                 bottomDialog.rankUser1.root.setBackgroundResource(R.drawable.gradation_rectangle_2)
+                bottomDialog.rankUser0.root.setBackgroundResource(R.drawable.border_rectangle)
                 bottomDialog.rankUser2.root.setBackgroundResource(R.drawable.border_rectangle)
             }
 

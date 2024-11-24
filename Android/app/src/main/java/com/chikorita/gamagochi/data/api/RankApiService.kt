@@ -5,6 +5,7 @@ import com.chikorita.gamagochi.data.dto.LadybugLocationRequest
 import com.chikorita.gamagochi.data.dto.LevelRankingResponse
 import com.chikorita.gamagochi.data.dto.SuccessMissionResponse
 import com.chikorita.gamagochi.data.dto.GetAllMajorResponse
+import com.chikorita.gamagochi.data.dto.RankingList
 import com.chikorita.gamagochi.domain.model.MajorName
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -24,10 +25,11 @@ interface RankApiService {
         @Query("userId") userId: Long
     ): LadybugDetailResponse
 
-    @GET("level/ranking")
-    suspend fun getLevelRanking() : LevelRankingResponse
+    @GET("api/ranking/all")
+    suspend fun getLevelRanking(): List<RankingList>
 
-    @GET("major/all")
+
+    @GET("api/ranking/major")
     suspend fun getMajorAll() : GetAllMajorResponse
 
     @GET("level/names")

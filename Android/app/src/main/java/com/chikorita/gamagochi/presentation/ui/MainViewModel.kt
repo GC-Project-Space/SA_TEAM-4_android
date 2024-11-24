@@ -18,6 +18,7 @@ import com.kakao.vectormap.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,14 +30,15 @@ class MainViewModel @Inject constructor(
     var currentPathIndex = 0 // 이동 경로의 현재 인덱스
 
     var MajorRankerArray = arrayListOf(
-        MajorRanker(1, "소프트웨어", 450000),
-        MajorRanker(2, "인공지능", 390000),
-        MajorRanker(3, "컴퓨터공학", 380000)
+        MajorRanker(1, "소프트웨어학과", 680),
+        MajorRanker(2, "AI인공지능학과", 320),
+        MajorRanker(3, "도시계획학과", 230)
     )
+
     var SchoolRankerArray = arrayListOf(
-        SchoolRanker(16, "로건", "무당신", 3400),
-        SchoolRanker(17, "마라", "무당짱", 2300),
-        SchoolRanker(18, "코코아", "무당이", 1700)
+        SchoolRanker(2, "테스트1", "무당갓", 320),
+        SchoolRanker(6, "테스트5", "무당갓", 300),
+        SchoolRanker(4, "테스트3", "무당왕", 220)
     )
 
     var movePath = listOf(
@@ -49,7 +51,7 @@ class MainViewModel @Inject constructor(
         LatLng.from(37.455196, 127.133963)
     )
 
-    private val _rankingList = MutableLiveData<ArrayList<RankingList>>()
+    private val _rankingList = MutableLiveData<ArrayList<RankingList>>((arrayListOf()))
     val rankingList : LiveData<ArrayList<RankingList>>
         get() = _rankingList
 
@@ -98,14 +100,47 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    /** 랭크 API 가져오기*/
     fun getLevelRanking() {
         viewModelScope.launch(Dispatchers.IO) {
-            levelRepository.getLevelRanking().result.rankingList.let {
-                if (it.isNotEmpty()) _rankingList.value = it as ArrayList
+            try {
+                // API 응답 가져오기
+                val response = levelRepository.getLevelRanking()
+                Log.d("ViewModel", "API Response: $response")
+
+                // 바로 result를 LiveData에 업데이트
+                withContext(Dispatchers.Main) {
+                    _rankingList.value = response.result // UI 스레드에서 호출
+                }
+                Log.d("ViewModel", "Updated rankingList: ${_rankingList.value}")
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error fetching ranking list: ${e.message}")
             }
-            Log.d("MainViewModel", "rankingList: ${_rankingList.value}")
         }
     }
+
+    /** 가져온 API로 배열에 넣기*/
+    fun updateSchoolRankerArrayFromRankingList() {
+        // rankingList에서 SchoolRankerArray로 변환
+        Log.d("MainViewModel", "Current rankingList: ${_rankingList.value}")
+        val newSchoolRankerArray = _rankingList.value?.mapIndexed { index, ranking ->
+            SchoolRanker(
+                rank = ranking.id,
+                nickName = ranking.name,
+                symbol = ranking.ladybugType,
+                exp = ranking.experiencePoints
+            )
+        } ?: emptyList()
+
+        // SchoolRankerArray 업데이트
+        SchoolRankerArray.clear()
+        SchoolRankerArray.addAll(newSchoolRankerArray)
+
+        // 디버깅 로그
+        Log.d("MainViewModel", "Updated SchoolRankerArray Final: $SchoolRankerArray")
+    }
+
+
 
     fun getAllMajor() {
         viewModelScope.launch(Dispatchers.IO) {

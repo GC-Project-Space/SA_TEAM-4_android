@@ -1,6 +1,7 @@
 package com.chikorita.gamagochi.data.dto
 
 import com.chikorita.gamagochi.presentation.config.base.BaseResponse
+import com.google.gson.annotations.SerializedName
 
 /** 내 랭킹 정보 조회 (바텀시트) */
 data class LadybugDetailResponse (
@@ -33,25 +34,26 @@ data class MajorRank(
 data class SchoolRank(
     val experience: Int = 0, // 경험치
     val ladybugType : String = "EGG", // 레벨
-    val nickname : String = "string", // 닉네임
+    val name : String = "string", // 닉네임
     val rank : Int = 0 // 순위
 )
 
 /** 랭킹 조회 */
-data class LevelRankingResponse (
-    val result: RankingResult
-): BaseResponse()
-
-data class RankingResult(
-    val rankingList: List<RankingList>
-)
+data class LevelRankingResponse(
+    val result: ArrayList<RankingList> = arrayListOf()
+) : BaseResponse()
 
 data class RankingList(
-    val experience: Int = 0,
-    val ladybugType: String = "",
-    val nickName: String = "",
-    val rank: Int = 0
+    @SerializedName("id")
+    val id: Int = 0,
+    @SerializedName("name")
+    val name: String = "",
+    @SerializedName("experience_points")
+    val experiencePoints: Long = 0,
+    @SerializedName("symbol")
+    val ladybugType: String = ""
 )
+
 
 /** */
 data class LadybugLocationRequest (

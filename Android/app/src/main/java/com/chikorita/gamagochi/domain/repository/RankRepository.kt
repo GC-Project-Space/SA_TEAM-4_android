@@ -6,10 +6,10 @@ import com.chikorita.gamagochi.data.dto.LadybugDetailResponse
 import com.chikorita.gamagochi.data.dto.LadybugDetailResult
 import com.chikorita.gamagochi.data.dto.LadybugLocationRequest
 import com.chikorita.gamagochi.data.dto.LevelRankingResponse
-import com.chikorita.gamagochi.data.dto.RankingResult
 import com.chikorita.gamagochi.data.dto.SuccessMissionResponse
 import com.chikorita.gamagochi.data.dto.SuccessMissionResult
 import com.chikorita.gamagochi.data.dto.GetAllMajorResponse
+import com.chikorita.gamagochi.data.dto.RankingList
 import javax.inject.Inject
 
 class RankRepository @Inject constructor(
@@ -18,12 +18,14 @@ class RankRepository @Inject constructor(
 
     suspend fun getLevelRanking(): LevelRankingResponse {
         return runCatching {
-            rankApiService.getLevelRanking()
+            val rankingList = rankApiService.getLevelRanking() // API 호출
+            LevelRankingResponse(result = ArrayList(rankingList)) // 배열을 ArrayList로 변환하여 반환
         }.getOrElse {
             Log.d("RankRepository", "getLevelRanking Failed: $it")
-            LevelRankingResponse(RankingResult(emptyList()))
+            return LevelRankingResponse() // 빈 리스트 반환
         }
     }
+
 
     suspend fun getMajorAll(): GetAllMajorResponse {
         return runCatching {

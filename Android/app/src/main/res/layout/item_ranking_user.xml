@@ -34,7 +34,7 @@
         android:id="@+id/rank_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@{String.valueOf(rank) + '위'}"
+        android:text="@{String.valueOf(rank) + '번'}"
         android:textColor="@color/black"
         android:textSize="12sp"
         android:layout_marginStart="8sp"
@@ -44,7 +44,7 @@
         tools:text="00위"/>
     <TextView
         android:id="@+id/id_tv"
-        android:layout_width="65dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:text="@{nickName}"
         android:textColor="@color/black"

@@ -1,8 +1,12 @@
 package com.chikorita.gamagochi.domain.model
 
+import com.google.gson.annotations.SerializedName
+
 data class MajorInfo(
+    @SerializedName("major")
     val name : String,
-    val totalExperience : String
+    @SerializedName("experience_points")
+    val totalExperience : Long
 )
 
 data class MajorName(

@@ -16,10 +16,10 @@ class SchoolRankingRVAdapter(private val dataList: ArrayList<RankingList>, val m
         RecyclerView.ViewHolder(binding.root) {
         @SuppressLint("SetTextI18n")
         fun bind(data: RankingList) {
-            binding.rank = data.rank
-            binding.exp = data.experience.toLong()
-            binding.symbol = data.ladybugType
-            binding.nickName = data.nickName
+            binding.rank = data.id
+            binding.exp = data.experiencePoints.toLong()
+//            binding.symbol = data.ladybugType
+            binding.nickName = data.name
         }
     }
 

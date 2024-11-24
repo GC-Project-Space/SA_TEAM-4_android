@@ -105,14 +105,14 @@
                     android:id="@+id/level_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1병"
+                    android:text="10,000보"
                     android:textStyle="bold"
                     android:textSize="12sp"/>
                 <TextView
                     android:id="@+id/level_description_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="주량"
+                    android:text="총 걸음수"
                     android:textStyle="normal"
                     android:textSize="10sp"/>
             </LinearLayout>
@@ -132,7 +132,7 @@
                     android:id="@+id/symbol_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="정상에 서 본자"
+                    android:text="미션 처돌이"
                     android:textStyle="bold"
                     android:textSize="12sp" />
                 <TextView
@@ -196,7 +196,7 @@
             android:textSize="11sp"
             android:textStyle="normal"
             android:textColor="@color/black"
-            android:text="정상에 서 본자"
+            android:text="꽈배기 한입하실래요?"
             android:layout_marginTop="10dp"
             android:gravity="center"
             />
@@ -208,7 +208,7 @@
             android:textSize="11sp"
             android:textStyle="normal"
             android:textColor="@color/black"
-            android:text="법을 잘 아는 자"
+            android:text="z전기차 식당z"
             android:layout_marginTop="7dp"
             android:gravity="center"
             />
@@ -220,7 +220,7 @@
             android:textSize="11sp"
             android:textStyle="normal"
             android:textColor="@color/black"
-            android:text="코딩의 신"
+            android:text="여정의 시작"
             android:layout_marginTop="7dp"
             android:gravity="center"
             />
